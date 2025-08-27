@@ -12,7 +12,7 @@ gh repo clone tkolleh/git-commands
 2. Make sure all scripts are executable 
 
 ```zsh
-chmod +x git-*.zsh
+chmod +x git-*
 ```
 3. Add the directory to your $PATH
 

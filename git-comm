@@ -10,7 +10,7 @@
 #==================================================
 #
 show_help() {
-    cat <<EOF
+  printf -- "
 git-comm - Interactive conventional commit message generator
 
 Usage: git comm [OPTIONS]
@@ -51,7 +51,7 @@ Requirements:
 
 Environment:
   Automatically detects JIRA ticket numbers from branch names (format: ABC-1234)
-EOF
+"
     exit 0
 }
 

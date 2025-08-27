@@ -10,7 +10,7 @@
 #================================================== 
 #
 show_help() {
-    cat <<EOF
+  printf -- "
 git-st - Enhanced git status command
 
 Usage: git st [OPTIONS]
@@ -30,12 +30,10 @@ Description:
 
 Examples:
   git st          # Show status with numbered files
-  git st -b       # Show status with branch info
-  git st --short  # Show short format status
 
 Environment:
   Uses scmpuff if available for enhanced file numbering functionality.
-EOF
+"
     exit 0
 }
 
