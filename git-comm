@@ -1,0 +1,60 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# ====================================
+#
+# set -euo pipefail
+
+function extract_jira() {
+  local branch=${1:-$(git branch --show-current)}
+  [[ $branch =~ ([A-Za-z]{3}-[0-9]{4}) ]] && echo $match[1]
+}
+
+function git_comm() {
+  local _type scope summary description default_scope_jira
+  _type=$(gum choose "build" "perf" "ci" "fix" "feat" "docs" "style" "refactor" "test" "chore" "revert")
+  default_scope_jira=$(git branch --show-current | rg --only-matching --regexp '[a-zA-Z]{3}\-[0-9]{4}')
+  scope=$(gum input --placeholder "scope" --value "${DEFAULT_SCOPE_JIRA}")
+
+  # Since the scope is optional, wrap it in parentheses if it has a value.
+  test -n "$scope" && scope="($SCOPE)"
+
+  # Pre-populate the input with the type(scope): so that the user may change it
+  local summary=$(gum input --value "$TYPE$SCOPE: " --placeholder "Summary of this change")
+  local description=$(gum write --placeholder "Details of this change")
+
+  if [[ -n "$summary" ]]; then
+    # Commit these changes if user confirms
+    gum confirm "Commit changes?" && git commit -m "$summary" -m "$description"
+  else
+    echo "Empty commit message, canceling..."
+    return 0
+  fi
+}
+
+function main() {
+  local git_status
+  git_status=$(git status --porcelain --untracked-files=no)
+
+  if [[ -z $git_status ]]; then
+    echo "No changes to commit"
+    return 0
+  fi
+
+  case $1 in
+    -h|--help)
+      echo "Usage: git comm [<summary>]"
+      echo "This command is used to write a conventional commit message. It prompts the "
+      echo "user to choose the type of commit as specified in the conventional commit "
+      echo "spec. And then prompts for the summary and detailed description of the message "
+      echo "and uses the values provided. "
+      return 0
+      ;;
+  esac
+
+  echo "Modified files:"
+  print -r -- "$git_status"
+  git_comm
+}
+
+main "$@"

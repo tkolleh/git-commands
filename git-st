@@ -1,0 +1,26 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# A git status command that integrates the shell to give you numbered file shortcuts.
+#
+# Processes 'git status --porcelain', and exports numbered env variables that contain 
+# the path of each affected file.
+#
+# see https://github.com/mroth/scmpuff
+#================================================== 
+#
+check_git_status() {
+  scmpuff status
+}
+
+main() {
+    if command -v scmpuff_status >/dev/null 2>&1; then
+        scmpuff_status "$@"
+    elif check_git_status "$@"; then
+        : # Successfully used scmpuff
+    else
+        git status -b "$@"
+    fi
+}
+
+main "$@"
