@@ -10,10 +10,9 @@ Git commands for common tasks.
 ## Dependencies
 
 Some scripts require external tools:
-
-- [gum]: https://github.com/charmbracelet/gum
-- [fzf]: https://github.com/junegunn/fzf
-- [gh]: https://cli.github.com/
+* [gum](https://github.com/charmbracelet/gum)
+* [fzf](https://github.com/junegunn/fzf)
+* [gh](https://cli.github.com/)
 
 ## Commands
 
