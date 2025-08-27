@@ -11,9 +11,9 @@ Git commands for common tasks.
 
 Some scripts require external tools:
 
-- [gum]
-- [fzf]
-- [gh]
+- [gum]: https://github.com/charmbracelet/gum
+- [fzf]: https://github.com/junegunn/fzf
+- [gh]: https://cli.github.com/
 
 ## Commands
 
@@ -41,14 +41,14 @@ Edit ~/.gitconfig to include this file:
 Include the path to the alias file:
 
 ```
-    [include]
-    path = ~/.local/share/git/common-git-cmd-aliases.conf
+  [include]
+  path = ~/.local/share/git/common-git-cmd-aliases.conf
 ```
 
 
 ## References
 
-* Heavily inspired by [ttscoff/git-commands]
+* Heavily inspired by [ttscoff/git-commands](https://github.com/ttscoff/git-commands)
 
 ## License
 
