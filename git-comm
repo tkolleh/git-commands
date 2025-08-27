@@ -1,9 +1,59 @@
 #!/bin/zsh
 # vim:ft=zsh
 #
-# ====================================
+# git-comm - Interactive conventional commit message generator
 #
-# set -euo pipefail
+# Guides users through creating conventional commit messages with type selection,
+# scope input, summary, and detailed description using gum for interactive prompts.
+#
+# Requires: gum (https://github.com/charmbracelet/gum)
+#==================================================
+#
+show_help() {
+    cat <<EOF
+git-comm - Interactive conventional commit message generator
+
+Usage: git comm [OPTIONS]
+
+Options:
+  -h, --help     Show this help message
+
+Description:
+  Interactive command that guides you through creating conventional commit messages.
+  Prompts for:
+  - Commit type (feat, fix, docs, style, refactor, test, chore, etc.)
+  - Scope (optional, often JIRA ticket number)
+  - Summary of changes
+  - Detailed description (optional)
+
+  Automatically extracts JIRA ticket numbers from branch names when possible.
+
+Conventional Commit Types:
+  feat:     A new feature
+  fix:      A bug fix
+  docs:     Documentation only changes
+  style:    Changes that do not affect the meaning of the code
+  refactor: A code change that neither fixes a bug nor adds a feature
+  test:     Adding missing tests or correcting existing tests
+  chore:    Changes to the build process or auxiliary tools
+  perf:     A code change that improves performance
+  ci:       Changes to CI configuration files and scripts
+  build:    Changes that affect the build system or external dependencies
+  revert:   Reverts a previous commit
+
+Examples:
+  git comm          # Start interactive commit message creation
+  git comm --help   # Show this help message
+
+Requirements:
+  - gum (https://github.com/charmbracelet/gum) for interactive prompts
+  - Git
+
+Environment:
+  Automatically detects JIRA ticket numbers from branch names (format: ABC-1234)
+EOF
+    exit 0
+}
 
 function extract_jira() {
   local branch=${1:-$(git branch --show-current)}
@@ -13,15 +63,15 @@ function extract_jira() {
 function git_comm() {
   local _type scope summary description default_scope_jira
   _type=$(gum choose "build" "perf" "ci" "fix" "feat" "docs" "style" "refactor" "test" "chore" "revert")
-  default_scope_jira=$(git branch --show-current | rg --only-matching --regexp '[a-zA-Z]{3}\-[0-9]{4}')
-  scope=$(gum input --placeholder "scope" --value "${DEFAULT_SCOPE_JIRA}")
+  default_scope_jira=$(extract_jira)
+  scope=$(gum input --placeholder "scope" --value "${default_scope_jira}")
 
   # Since the scope is optional, wrap it in parentheses if it has a value.
-  test -n "$scope" && scope="($SCOPE)"
+  test -n "$scope" && scope="($scope)"
 
   # Pre-populate the input with the type(scope): so that the user may change it
-  local summary=$(gum input --value "$TYPE$SCOPE: " --placeholder "Summary of this change")
-  local description=$(gum write --placeholder "Details of this change")
+  local summary=$(gum input --value "${_type}${scope}: " --placeholder "Summary of this change")
+  local description=$(gum write --placeholder "Details of this change (Ctrl+D to finish)")
 
   if [[ -n "$summary" ]]; then
     # Commit these changes if user confirms
@@ -33,6 +83,12 @@ function git_comm() {
 }
 
 function main() {
+  case "$1" in
+    -h|--help)
+      show_help
+      ;;
+  esac
+
   local git_status
   git_status=$(git status --porcelain --untracked-files=no)
 
@@ -40,17 +96,6 @@ function main() {
     echo "No changes to commit"
     return 0
   fi
-
-  case $1 in
-    -h|--help)
-      echo "Usage: git comm [<summary>]"
-      echo "This command is used to write a conventional commit message. It prompts the "
-      echo "user to choose the type of commit as specified in the conventional commit "
-      echo "spec. And then prompts for the summary and detailed description of the message "
-      echo "and uses the values provided. "
-      return 0
-      ;;
-  esac
 
   echo "Modified files:"
   print -r -- "$git_status"

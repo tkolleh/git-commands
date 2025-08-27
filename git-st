@@ -1,26 +1,63 @@
 #!/bin/zsh
 # vim:ft=zsh
 #
-# A git status command that integrates the shell to give you numbered file shortcuts.
+# git-st - Enhanced git status with numbered file shortcuts
 #
 # Processes 'git status --porcelain', and exports numbered env variables that contain 
-# the path of each affected file.
+# the path of each affected file. Integrates with scmpuff if available.
 #
 # see https://github.com/mroth/scmpuff
 #================================================== 
 #
+show_help() {
+    cat <<EOF
+git-st - Enhanced git status command
+
+Usage: git st [OPTIONS]
+
+Options:
+  -h, --help     Show this help message
+  --porcelain    Machine-readable output
+  -b, --branch   Show branch information
+  -s, --short    Short format
+  -u, --untracked-files[=<mode>]
+                 Show untracked files (no, normal, all)
+
+Description:
+  Enhanced git status that provides numbered shortcuts for files. When scmpuff
+  is installed, it uses scmpuff for advanced file numbering and navigation.
+  Falls back to standard git status if scmpuff is not available.
+
+Examples:
+  git st          # Show status with numbered files
+  git st -b       # Show status with branch info
+  git st --short  # Show short format status
+
+Environment:
+  Uses scmpuff if available for enhanced file numbering functionality.
+EOF
+    exit 0
+}
+
 check_git_status() {
   scmpuff status
 }
 
 main() {
-    if command -v scmpuff_status >/dev/null 2>&1; then
-        scmpuff_status "$@"
-    elif check_git_status "$@"; then
-        : # Successfully used scmpuff
-    else
-        git status -b "$@"
-    fi
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        *)
+            if command -v scmpuff_status >/dev/null 2>&1; then
+                scmpuff_status "$@"
+            elif check_git_status "$@"; then
+                : # Successfully used scmpuff
+            else
+                git status -b "$@"
+            fi
+            ;;
+    esac
 }
 
 main "$@"
