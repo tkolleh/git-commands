@@ -16,12 +16,7 @@ git-st - Enhanced git status command
 Usage: git st [OPTIONS]
 
 Options:
-  -h, --help     Show this help message
-  --porcelain    Machine-readable output
-  -b, --branch   Show branch information
-  -s, --short    Short format
-  -u, --untracked-files[=<mode>]
-                 Show untracked files (no, normal, all)
+  -h,     Show this help message
 
 Description:
   Enhanced git status that provides numbered shortcuts for files. When scmpuff
@@ -38,7 +33,8 @@ Environment:
 }
 
 check_git_status() {
-  scmpuff status
+  eval "$(scmpuff init -s --aliases=false)"
+  scmpuff_status
 }
 
 main() {
