@@ -1,0 +1,74 @@
+#!/bin/zsh
+# Interactive git alias viewer with fzf
+# vim:ft=zsh
+#
+function show_help() {
+  printf -- "
+git-aliases - Interactive git alias viewer with fzf
+
+USAGE:
+    git aliases [options]
+
+DESCRIPTION:
+    Displays git aliases in an interactive fzf interface with search
+    and preview capabilities. Allows browsing and understanding
+    all configured git aliases.
+
+DEPENDENCIES:
+    - fzf: Fuzzy finder for interactive selection
+    - git: Version control system
+
+EXAMPLES:
+    git aliases              # Open interactive alias viewer
+    git aliases -h           # Show this help message
+"
+exit 0
+}
+
+function interactive_alias_viewer() {
+  # Check if fzf is installed
+  if ! (( ${+commands[fzf]} )); then
+    echo "Error: fzf is not installed. Please install fzf to use the interactive alias viewer."
+    return 1
+  fi
+  
+  # Get all git aliases
+  local aliases=$(git config -l | grep '^alias\.' | sed 's/^alias\.//')
+  
+  if [[ -z "$aliases" ]]; then
+    echo "No git aliases found."
+    return 0
+  fi
+  
+  # Format aliases for display
+  local formatted_aliases=""
+  while IFS='=' read -r name value; do
+    formatted_aliases+="$(printf "\033[34m%-20s\033[0m %s" "$name:" "$value")\n"
+  done <<< "$aliases"
+
+  
+  # Run fzf with preview
+  local selected=$(echo -e "$formatted_aliases" | fzf \
+    --ansi \
+    --no-strip-ansi \
+    --preview-window="top:60%:wrap" \
+    --preview='bat --style=full --color=always' \
+    --bind='?:toggle-preview' \
+    --header='Search aliases | ?: toggle preview ' \
+    --prompt='Git alias> ' \
+    )
+  echo -e "$selected" || return 0
+  # Extract alias name (remove color codes and trailing colon)
+  local alias_name=$(echo -e "$selected" | awk -F: '{print $1}')
+  # Execute as git command
+  git "$alias_name"
+}
+
+case "$1" in
+  -h|--help)
+    show_help
+    ;;
+  *)
+    interactive_alias_viewer
+    ;;
+esac
