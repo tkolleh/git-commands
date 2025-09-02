@@ -62,6 +62,16 @@ function extract_jira() {
 
 function git_comm() {
   local _type scope summary description default_scope_jira
+  local cache_dir="${TMPDIR:-/tmp}"
+  local git_root="$(git rev-parse --show-toplevel)"
+  local cache_file="$cache_dir/git-comm-cache-$(echo "$git_root" | sed 's/\//-/g')"
+  local cached_summary=""
+  local cached_description=""
+
+  if [[ -f "$cache_file" ]]; then
+    cached_summary=$(head -n 1 "$cache_file")
+    cached_description=$(tail -n +2 "$cache_file")
+  fi
   _type=$(gum choose "build" "perf" "ci" "fix" "feat" "docs" "style" "refactor" "test" "chore" "revert")
   default_scope_jira=$(extract_jira)
   scope=$(gum input --placeholder "scope" --value "${default_scope_jira}")
@@ -70,12 +80,16 @@ function git_comm() {
   test -n "$scope" && scope="($scope)"
 
   # Pre-populate the input with the type(scope): so that the user may change it
-  local summary=$(gum input --value "${_type}${scope}: " --placeholder "Summary of this change")
-  local description=$(gum write --placeholder "Details of this change (Ctrl+D to finish)")
+  local summary=$(gum input --value "${cached_summary:-${_type}${scope}: }" --placeholder "Summary of this change")
+  local description=$(gum write --value "$cached_description" --placeholder "Details of this change (Ctrl+D to finish)")
+
+  # Save summary and description to cache file in case of interruption
+  echo "$summary" > "$cache_file"
+  echo "$description" >> "$cache_file"
 
   if [[ -n "$summary" ]]; then
-    # Commit these changes if user confirms
-    gum confirm "Commit changes?" && git commit -m "$summary" -m "$description"
+    git commit -m "$summary" -m "$description"
+    rm -f "$cache_file"
   else
     echo "Empty commit message, canceling..."
     return 0
