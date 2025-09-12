@@ -27,6 +27,7 @@ Some scripts require external tools
 * [gum](https://github.com/charmbracelet/gum)
 * [fzf](https://github.com/junegunn/fzf)
 * [gh](https://cli.github.com/)
+* [zoxide](https://github.com/ajeetdsouza/zoxide)
 
 ## Commands
 

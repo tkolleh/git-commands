@@ -1,0 +1,43 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# git-stashes - fzf powered git stash picker
+#
+#================================================== 
+#
+show_help() {
+  printf -- "
+git-stashes - git stashes picker
+
+Usage: git stashes [OPTIONS]
+
+Options:
+  -h,     Show this help message
+
+Description:
+  FZF Powered git stash picker.
+
+Examples:
+  git stashes          # Show all stashes
+"
+    exit 0
+}
+
+git-stashes-picker() {
+  local dir
+  dir="$(source $FZF_GIT_HOME/fzf-git.sh --run stashes)"
+  [ -d "$dir" ] && cd "$dir"
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        *)
+            git-stashes-picker "$@"
+            ;;
+    esac
+}
+
+main "$@"

@@ -1,0 +1,43 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# git-worktrees - fzf powered git worktree switcher
+#
+#================================================== 
+#
+show_help() {
+  printf -- "
+git-worktrees - git worktree switcher
+
+Usage: git worktrees [OPTIONS]
+
+Options:
+  -h,     Show this help message
+
+Description:
+  FZF Powered git worktree switcher.
+
+Examples:
+  git worktrees          # Show all worktrees
+"
+    exit 0
+}
+
+git-worktrees-cd() {
+  local dir
+  dir="$(source $FZF_GIT_HOME/fzf-git.sh --run worktrees)"
+  [ -d "$dir" ] && cd "$dir"
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        *)
+            git-worktrees-cd "$@"
+            ;;
+    esac
+}
+
+main "$@"
