@@ -19,22 +19,56 @@ Options:
   -h,     Show this help message
 
 Description:
-  Enhanced git status that provides numbered shortcuts for files. When scmpuff
-  is installed, it uses scmpuff for advanced file numbering and navigation.
-  Falls back to standard git status if scmpuff is not available.
+  Enhanced git status. One-line status for each file with lines added and removed.
+  The Original version by https://www.reddit.com/user/ex1c
 
 Examples:
-  git st          # Show status with numbered files
-
-Environment:
-  Uses scmpuff if available for enhanced file numbering functionality.
+  git st          # Show status
 "
     exit 0
 }
 
 check_git_status() {
-  eval "$(scmpuff init -s --aliases=false)"
-  scmpuff_status
+  local IFS
+  local git_status="$(git -c color.status=always status -sb)"
+
+  if [ $? -ne 0 ]; then
+      exit 1
+  fi
+
+  local diff="$(git diff --color --stat HEAD 2> /dev/null \
+  | sed '$d; s/^ //' \
+  | cut -d '|' -f 2)"
+
+  IFS=$'\n' git_status=($git_status)
+  IFS=$'\n' diff=($diff)
+
+  local len=-1
+  for i in $(seq 1 $(( ${#git_status[@]} - 1))); do
+      if [ ${#git_status[i]} -gt $len ]
+      then
+          len=${#git_status[i]}
+      fi
+  done
+  (( len *= -1 ))
+
+  for i in $(seq 0 $(( ${#git_status[@]} - 1))) ; do
+      currStatus=${git_status[i]}
+      if [ $i -eq 0 ]; then
+          echo "${git_status[0]}" | cut -d ' ' -f 2-
+      else
+          if [ ! -z ${diff[i - 1]} ]; then
+              currDiff="|${diff[i - 1]}"
+          else
+              currDiff=""
+          fi
+          printf "%*s  %s\n" $len "${currStatus}" "${currDiff}"
+      fi
+  done
+
+  if [ $(( ${#git_status[@]} - 1)) -eq 0 ]; then
+      git -c color.status=always status -b
+  fi
 }
 
 main() {
@@ -43,13 +77,7 @@ main() {
             show_help
             ;;
         *)
-            if command -v scmpuff_status >/dev/null 2>&1; then
-                scmpuff_status "$@"
-            elif check_git_status "$@"; then
-                : # Successfully used scmpuff
-            else
-                git status -b "$@"
-            fi
+            check_git_status "$@"
             ;;
     esac
 }
