@@ -1,0 +1,41 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# git-branches - fzf powered git branch picker
+#
+#================================================== 
+#
+show_help() {
+  printf -- "
+git-branches - git branch picker
+
+Usage: git branches [OPTIONS]
+
+Options:
+  -h,     Show this help message
+
+Description:
+  FZF Powered git branch picker.
+
+Examples:
+  git branches          # Show all branches in current git repository
+"
+    exit 0
+}
+
+git-branches-picker() {
+  source $FZF_GIT_HOME/fzf-git.sh --run branches
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        *)
+            git-branches-picker "$@"
+            ;;
+    esac
+}
+
+main "$@"
