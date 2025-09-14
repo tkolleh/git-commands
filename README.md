@@ -27,7 +27,6 @@ Some scripts require external tools
 * [gum](https://github.com/charmbracelet/gum)
 * [fzf](https://github.com/junegunn/fzf)
 * [gh](https://cli.github.com/)
-* [zoxide](https://github.com/ajeetdsouza/zoxide)
 
 ## Commands
 
@@ -60,10 +59,4 @@ Include the path to the alias file:
 ```
 ## References
 
-* Heavily inspired by [ttscoff/git-commands](https://github.com/ttscoff/git-commands)
-
-## License
-
-This repo is licensed under the MIT License.
-
-See <https://opensource.org/licenses/MIT> for details.
+* Inspired by [ttscoff/git-commands](https://github.com/ttscoff/git-commands)
