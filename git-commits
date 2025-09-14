@@ -1,0 +1,41 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# git-commits - fzf powered git commit picker
+#
+#================================================== 
+#
+show_help() {
+  printf -- "
+git-commits - git commit picker
+
+Usage: git commits [OPTIONS]
+
+Options:
+  -h,     Show this help message
+
+Description:
+  FZF Powered git commit picker.
+
+Examples:
+  git commits  # Show all commits
+"
+    exit 0
+}
+
+git-commits-cd() {
+  source $FZF_GIT_HOME/fzf-git.sh --run hashes
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        *)
+            git-commits-cd "$@"
+            ;;
+    esac
+}
+
+main "$@"

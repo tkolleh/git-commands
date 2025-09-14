@@ -1,13 +1,13 @@
 #!/bin/zsh
 # vim:ft=zsh
 #
-# git-worktrees - fzf powered git worktree switcher
+# git-worktrees - fzf powered git worktree picker
 #
 #================================================== 
 #
 show_help() {
   printf -- "
-git-worktrees - git worktree switcher
+git-worktrees - git worktree picker
 
 Usage: git worktrees [OPTIONS]
 
@@ -15,7 +15,7 @@ Options:
   -h,     Show this help message
 
 Description:
-  FZF Powered git worktree switcher.
+  FZF Powered git worktree picker.
 
 Examples:
   git worktrees          # Show all worktrees

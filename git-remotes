@@ -1,0 +1,41 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# git-remotes - fzf powered git remote picker
+#
+#================================================== 
+#
+show_help() {
+  printf -- "
+git-remotes - git remote picker
+
+Usage: git remotes [OPTIONS]
+
+Options:
+  -h,     Show this help message
+
+Description:
+  FZF Powered git remote picker.
+
+Examples:
+  git remotes  # Show all remotes
+"
+    exit 0
+}
+
+git-remotes-cd() {
+  source $FZF_GIT_HOME/fzf-git.sh --run remotes
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        *)
+            git-remotes-cd "$@"
+            ;;
+    esac
+}
+
+main "$@"

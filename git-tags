@@ -1,0 +1,41 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# git-tags - fzf powered git tag picker
+#
+#================================================== 
+#
+show_help() {
+  printf -- "
+git-tags - git tag picker
+
+Usage: git tags [OPTIONS]
+
+Options:
+  -h,     Show this help message
+
+Description:
+  FZF Powered git tag picker.
+
+Examples:
+  git tags  # Show all tags
+"
+    exit 0
+}
+
+git-tags-cd() {
+  source $FZF_GIT_HOME/fzf-git.sh --run tags
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        *)
+            git-tags-cd "$@"
+            ;;
+    esac
+}
+
+main "$@"

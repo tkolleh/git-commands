@@ -1,0 +1,41 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# git-files - fzf powered git file picker
+#
+#================================================== 
+#
+show_help() {
+  printf -- "
+git-files - git file picker
+
+Usage: git files [OPTIONS]
+
+Options:
+  -h,     Show this help message
+
+Description:
+  FZF Powered git file picker.
+
+Examples:
+  git files  # Show all files
+"
+    exit 0
+}
+
+git-files-cd() {
+  source $FZF_GIT_HOME/fzf-git.sh --run files
+}
+
+main() {
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        *)
+            git-files-cd "$@"
+            ;;
+    esac
+}
+
+main "$@"
