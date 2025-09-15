@@ -50,7 +50,6 @@ function interactive_alias_viewer() {
   # Run fzf with preview
   local selected=$(echo -e "$formatted_aliases" | fzf \
     --ansi \
-    --no-strip-ansi \
     --preview-window="top:60%:wrap" \
     --preview='bat --style=full --color=always' \
     --bind='?:toggle-preview' \
