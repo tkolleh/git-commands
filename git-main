@@ -17,8 +17,8 @@ Options:
 Description:
   Switch to the main branch of the current git repository. The default branch 
   is determined based on common branch names or fallback to remote HEAD. 
-  Navigates to the main branch of the worktree if the current directory is 
-  part of a git worktree.
+  Switches the main branch in the main worktree if the current directory is 
+  a linked worktree (does not change shell directory).
 "
   exit 0
 }
@@ -70,10 +70,12 @@ switch_to_main() {
 
   local curr_wt main_wt
   curr_wt=$(command git rev-parse --show-toplevel 2>/dev/null)
-  main_wt=$(command git worktree list --porcelain | awk '/^worktree / {print $2; exit}')
+  main_wt=$(command git worktree list --porcelain | awk '/^worktree / {sub(/^worktree /, ""); print; exit}')
 
   if [[ "$curr_wt" != "$main_wt" ]]; then
-    cd "$main_wt" || return 1
+    echo "Switch to main worktree branch (you are in a linked worktree)."
+    echo "To work in the main worktree, run: cd \"$main_wt\""
+    return 0
   fi
 
   # Switch branch
