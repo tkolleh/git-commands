@@ -1,0 +1,94 @@
+#!/bin/zsh
+# vim:ft=zsh
+#
+# git-main - git switch to main branch
+#
+#================================================== 
+
+show_help() {
+  printf -- "
+git-main - git switch to main branch
+
+Usage:  git main [OPTIONS]
+
+Options:
+  -h, --help    Show this help message
+
+Description:
+  Switch to the main branch of the current git repository. The default branch 
+  is determined based on common branch names or fallback to remote HEAD. 
+  Navigates to the main branch of the worktree if the current directory is 
+  part of a git worktree.
+"
+  exit 0
+}
+
+find_main_branch() {
+  command git rev-parse --git-dir &>/dev/null || return 1
+  
+  local ref remote
+  local -a branches=(main trunk mainline default stable master)
+  local -a remotes=(origin upstream)
+  
+  # 1. Check local branches
+  for ref in refs/heads/$^branches; do
+    if command git show-ref -q --verify "$ref"; then
+      echo "${ref:t}"
+      return 0
+    fi
+  done
+  
+  # 2. Try to get default branch from remote HEAD
+  for remote in $remotes; do
+    if ref=$(command git symbolic-ref "refs/remotes/$remote/HEAD" 2>/dev/null); then
+      echo "${ref:t}"
+      return 0
+    fi
+  done
+
+  # 3. Fallback to common remote branch names
+  for remote in $remotes; do
+    for ref in refs/remotes/$remote/$^branches; do
+      if command git show-ref -q --verify "$ref"; then
+        echo "${ref:t}"
+        return 0
+      fi
+    done
+  done
+
+  # Ultimate fallback
+  echo "master"
+  return 1
+}
+
+switch_to_main() {
+  local main_branch
+  if ! main_branch=$(find_main_branch); then
+    echo "Error: Not a git repository or could not determine main branch." >&2
+    return 1
+  fi
+
+  local curr_wt main_wt
+  curr_wt=$(command git rev-parse --show-toplevel 2>/dev/null)
+  main_wt=$(command git worktree list --porcelain | awk '/^worktree / {print $2; exit}')
+
+  if [[ "$curr_wt" != "$main_wt" ]]; then
+    cd "$main_wt" || return 1
+  fi
+
+  # Switch branch
+  command git switch "$main_branch"
+}
+
+main() {
+  case "$1" in
+    -h|--help)
+      show_help
+      ;;
+    *)
+      switch_to_main
+      ;;
+  esac
+}
+
+main "$@"
