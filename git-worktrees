@@ -16,17 +16,23 @@ Options:
 
 Description:
   FZF Powered git worktree picker.
+  Writes selected path to temp file for shell hook to process.
 
 Examples:
-  git worktrees          # Show all worktrees
+  git worktrees          # Show all worktrees and cd to selected
 "
     exit 0
 }
 
 git-worktrees-cd() {
   local dir
-  dir="$(source $FZF_GIT_HOME/fzf-git.sh --run worktrees)"
-  [ -d "$dir" ] && cd "$dir"
+  local target_file="${TMPDIR:-/tmp}/git-worktrees-cd-target"
+
+  dir="$(source "$FZF_GIT_HOME/fzf-git.sh" --run worktrees)"
+
+  if [[ -d "$dir" ]]; then
+    printf '%s' "$dir" > "$target_file"
+  fi
 }
 
 main() {
